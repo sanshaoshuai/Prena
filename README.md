@@ -43,6 +43,11 @@ npm run dev
 ```
 打开浏览器访问 `http://localhost:5173/`，即可体验完整的控制台。
 
+### 🤖 3. AI 智能体“一句话”全自动安装
+为了极致降低使用门槛，如果您正在使用代码智能体（如 Antigravity, Claude Code, Cursor, Open Code, Workbuddy），您可以直接将以下这句“咒语”发给它，它会自动为您完成一切：
+
+> **"请克隆 https://github.com/sanshaoshuai/Prena 仓库，进入 web 目录执行 npm install 安装依赖，然后 npm run dev 启动服务，并为我打开本地预览链接。"**
+
 ### 3. 如何配合 AI Agent 自动生成？
 Prena 采用“人机分离”的创新架构：
 - **人类端**：您正在浏览的 README 和启动的 Web 控制台，用于最终的视觉调整与导出。
