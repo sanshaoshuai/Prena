@@ -1,60 +1,196 @@
 {
   "meta": {
-    "title": "SlideFlow 演示",
+    "title": "向内生长，温柔而坚定",
     "theme": "light",
-    "primaryColor": "#0A7CFF"
+    "primaryColor": "#8B5CF6"
   },
   "slides": [
     {
       "id": "slide-1",
       "layout": "center",
+      "notes": "开场白：大家好，今天我想和大家聊一聊女性的觉醒与治愈。这是一个柔软却充满力量的话题，也是每一个现代女性必须经历的课题。",
       "components": [
         {
-          "id": "c-1",
-          "type": "Heading",
-          "level": 1,
-          "text": "SlideFlow",
-          "align": "center"
+          "id": "img-1",
+          "type": "Image",
+          "src": "/cover_bg.jpg",
+          "alt": "治愈大图"
         },
         {
-          "id": "c-2",
+          "id": "h1-1",
+          "type": "Heading",
+          "level": 1,
+          "text": "向内生长，温柔而坚定"
+        },
+        {
+          "id": "p-1",
           "type": "Paragraph",
-          "text": "下一代智能演示文稿框架：告别套模版，拥抱动态排版",
-          "align": "center"
+          "text": "新时代女性的觉醒与自我治愈之旅"
         }
       ]
     },
     {
       "id": "slide-2",
       "layout": "standard",
+      "notes": "这句话在女性成长的语境里，有了全新的意义。真正的勇敢不是无坚不摧，而是敢于直面脆弱。",
       "components": [
         {
-          "id": "c-3",
+          "id": "h2-1",
           "type": "Heading",
           "level": 2,
-          "text": "核心架构优势"
+          "text": "情绪共鸣：不要温和地走进那个良夜"
         },
         {
-          "id": "c-4",
+          "id": "p-2",
+          "type": "Paragraph",
+          "text": "“要温柔地拥抱自己的每一道伤痕。”\n在这个充满焦虑和期待的时代，真正的勇敢不是无坚不摧，而是敢于直面脆弱，允许自己偶尔停下脚步。"
+        }
+      ]
+    },
+    {
+      "id": "slide-3",
+      "layout": "standard",
+      "notes": "这一页请看我们面临的三大痛点。社会赋予了我们很多角色：好女儿、好妻子、好员工，却唯独忘了告诉我们怎么做自己。",
+      "components": [
+        {
+          "id": "h2-2",
+          "type": "Heading",
+          "level": 2,
+          "text": "当下的困境：我们在挣扎中寻找什么？"
+        },
+        {
+          "id": "grid-1",
           "type": "CardGrid",
           "columns": 3,
           "cards": [
             {
-              "title": "灵活组件",
-              "content": "使用原子化组件而不是死板模版，内容不再被裁剪。",
-              "icon": "Layers"
+              "title": "枷锁",
+              "content": "外界期待与自我价值的冲突，完美主义带来的无尽压力。",
+              "icon": "Lock"
             },
             {
-              "title": "完美渲染",
-              "content": "利用 Web 技术实现圆角、阴影、自适应等高端效果。",
-              "icon": "Monitor"
+              "title": "迷失",
+              "content": "在多重社会角色中失去焦点，忘记了内心真正渴望的声音。",
+              "icon": "Compass"
             },
             {
-              "title": "真实导出",
-              "content": "前端解析 DOM，逆向生成 100% 还原的本地 PPTX。",
-              "icon": "Download"
+              "title": "内耗",
+              "content": "过度在意他人的评价，陷入深夜的情绪反刍与自我怀疑中。",
+              "icon": "BatteryWarning"
             }
           ]
+        }
+      ]
+    },
+    {
+      "id": "slide-4",
+      "layout": "standard",
+      "notes": "觉醒并不是一蹴而就的，它是一个有迹可循的、向内看的旅程。",
+      "components": [
+        {
+          "id": "h2-3",
+          "type": "Heading",
+          "level": 2,
+          "text": "向内看的旅程：觉醒的时刻"
+        },
+        {
+          "id": "list-1",
+          "type": "List",
+          "style": "timeline",
+          "items": [
+            "停下：允许自己崩溃，允许自己什么都不做，这本身就是一种力量。",
+            "看见：像旁观者一样，审视内心最真实的恐惧与渴望。",
+            "接纳：拥抱并不完美的自己，与过去的创伤达成和解。"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "slide-5",
+      "layout": "standard",
+      "notes": "当你走过觉醒的时刻，你需要这三种力量来维持你的内在秩序，这也是支撑我们走下去的基石。",
+      "components": [
+        {
+          "id": "h2-4",
+          "type": "Heading",
+          "level": 2,
+          "text": "重建内在秩序：治愈的三种力量"
+        },
+        {
+          "id": "grid-2",
+          "type": "CardGrid",
+          "columns": 3,
+          "cards": [
+            {
+              "title": "边界感",
+              "content": "学会拒绝，把精力和善意留给真正值得的人和事。",
+              "icon": "ShieldCheck"
+            },
+            {
+              "title": "自驱力",
+              "content": "不再为证明给别人看而努力，而是为自己的热爱去奔跑。",
+              "icon": "Rocket"
+            },
+            {
+              "title": "松弛感",
+              "content": "接受结果的不可控，享受过程，允许一切如其所是地发生。",
+              "icon": "Wind"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "slide-6",
+      "layout": "standard",
+      "notes": "这是觉醒前后最强烈的反差。觉醒前的我们是讨好者，觉醒后我们是创造者。",
+      "components": [
+        {
+          "id": "h2-5",
+          "type": "Heading",
+          "level": 2,
+          "text": "核心蜕变：两种状态的对比"
+        },
+        {
+          "id": "grid-3",
+          "type": "CardGrid",
+          "columns": 2,
+          "cards": [
+            {
+              "title": "觉醒前 (过去)",
+              "content": "向外索取：期待他人的认可来填补内心的空洞。\n恐惧驱动：害怕做错，害怕让人失望。\n患得患失：在不确定的关系中内耗。",
+              "highlight": false
+            },
+            {
+              "title": "觉醒后 (现在)",
+              "content": "向内丰盈：成为自己能量的发电机，不再依赖外界评价。\n热爱驱动：因为热爱和欢喜去创造。\n笃定从容：失去什么都不会失去自己。",
+              "highlight": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "slide-7",
+      "layout": "center",
+      "notes": "最后，送给大家一句话：你本就具足一切。谢谢聆听！",
+      "components": [
+        {
+          "id": "img-2",
+          "type": "Image",
+          "src": "/healing_bg_1.jpg",
+          "alt": "治愈大图"
+        },
+        {
+          "id": "h1-2",
+          "type": "Heading",
+          "level": 1,
+          "text": "你本就具足一切"
+        },
+        {
+          "id": "p-3",
+          "type": "Paragraph",
+          "text": "致敬每一位不断生长的女性。愿你心中有光，步履从容。"
         }
       ]
     }

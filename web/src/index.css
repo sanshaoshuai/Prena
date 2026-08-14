@@ -213,10 +213,14 @@ body {
   transition: transform 0.2s, box-shadow 0.2s;
   background: var(--ui-bg);
 }
+.grid-thumbnail-wrapper.active,
 .grid-thumbnail-wrapper:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1);
   border-color: var(--slide-primary);
+}
+.grid-thumbnail-wrapper.active {
+  box-shadow: 0 0 0 3px var(--slide-primary);
 }
 .grid-thumbnail-scale {
   width: 960px;

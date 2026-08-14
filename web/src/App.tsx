@@ -21,6 +21,11 @@ function App() {
   
   const playContainerRef = useRef<HTMLDivElement>(null);
 
+  // Sync state with JSON for Vite HMR (Hot Module Replacement)
+  useEffect(() => {
+    setDeck(sampleDeck as Presentation);
+  }, [sampleDeck]);
+
   // Apply UI Theme
   useEffect(() => {
     const root = window.document.documentElement;
@@ -79,19 +84,88 @@ function App() {
     return () => window.removeEventListener('resize', updateScale);
   }, [playMode]);
 
-  // Keyboard navigation for play mode
+  // Global Keyboard Navigation (Play mode, Normal mode, Grid mode)
   useEffect(() => {
-    if (!playMode) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight' || e.key === 'Space') {
-        if (currentSlide < deck.slides.length - 1) setCurrentSlide(p => p + 1);
-      } else if (e.key === 'ArrowLeft') {
-        if (currentSlide > 0) setCurrentSlide(p => p - 1);
+      // 正在输入时，不要拦截键盘事件
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      if (playMode) {
+        if (e.key === 'ArrowRight' || e.key === 'Space' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (currentSlide < deck.slides.length - 1) setCurrentSlide(p => p + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (currentSlide > 0) setCurrentSlide(p => p - 1);
+        }
+      } else {
+        // 普通视图或宫格视图下的快捷键导航
+        if (viewMode === 'grid') {
+          let cols = 1;
+          const container = document.querySelector('.grid-view-container');
+          if (container) {
+            const gridStyle = window.getComputedStyle(container);
+            const columnsStr = gridStyle.getPropertyValue('grid-template-columns');
+            if (columnsStr) {
+              cols = columnsStr.trim().split(/\s+/).length;
+            }
+          }
+
+          if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            if (currentSlide < deck.slides.length - 1) setCurrentSlide(p => p + 1);
+          } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            if (currentSlide > 0) setCurrentSlide(p => p - 1);
+          } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (currentSlide + cols < deck.slides.length) {
+              setCurrentSlide(p => p + cols);
+            }
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (currentSlide - cols >= 0) {
+              setCurrentSlide(p => p - cols);
+            }
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            setViewMode('normal');
+          }
+        } else {
+          // 普通视图
+          if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            if (currentSlide < deck.slides.length - 1) setCurrentSlide(p => p + 1);
+          } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            if (currentSlide > 0) setCurrentSlide(p => p - 1);
+          }
+        }
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [playMode, currentSlide, deck.slides.length]);
+  }, [playMode, currentSlide, deck.slides.length, viewMode]);
+
+  // 自动滚动选中的缩略图到可视区域
+  useEffect(() => {
+    if (!playMode) {
+      setTimeout(() => {
+        const activeItem = document.querySelector('.thumbnail-wrapper.active') || document.querySelector('.grid-thumbnail-wrapper.active');
+        if (activeItem) {
+          activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }, 50);
+    }
+  }, [currentSlide, viewMode, playMode]);
 
   const handleUpdateComponent = (slideId: string, compId: string, fieldPath: string, value: string) => {
     setDeck(prev => {
@@ -268,7 +342,7 @@ function App() {
             {deck.slides.map((slide, idx) => (
               <div 
                 key={slide.id} 
-                className="grid-thumbnail-wrapper"
+                className={`grid-thumbnail-wrapper ${idx === currentSlide ? 'active' : ''}`}
                 onClick={() => {
                   setCurrentSlide(idx);
                   setViewMode('normal');
