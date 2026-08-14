@@ -1,25 +1,97 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import sampleDeck from './sample-deck.json';
 import { SlideRenderer } from './components/SlideRenderer';
 import { exportDeckToPPTX } from './utils/exportPPTX';
 import type { Presentation, CardGridComponent } from './types/dsl';
-import { Monitor, Download, Play, Layout } from 'lucide-react';
+import { Download, Projector, Moon, Sun, Laptop, ChevronUp, ChevronDown, LayoutGrid, Sidebar } from 'lucide-react';
 
-const THEME_COLORS = [
-  '#0A7CFF', // Blue
-  '#10B981', // Emerald
-  '#8B5CF6', // Purple
-  '#F59E0B', // Amber
-  '#1F2937'  // Dark
-];
+const THEME_COLORS = ['#0A7CFF', '#10B981', '#8B5CF6', '#F59E0B', '#1F2937'];
+
+type AppTheme = 'light' | 'dark' | 'system';
+type ViewMode = 'normal' | 'grid';
 
 function App() {
   const [deck, setDeck] = useState<Presentation>(sampleDeck as Presentation);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [playMode, setPlayMode] = useState(false);
+  const [appTheme, setAppTheme] = useState<AppTheme>('system');
+  const [viewMode, setViewMode] = useState<ViewMode>('normal');
+  const [notesHeight, setNotesHeight] = useState(80); // Default open at lower height
+  const [playScale, setPlayScale] = useState(1);
+  
+  const playContainerRef = useRef<HTMLDivElement>(null);
 
-  // 全局注入主题色
-  document.documentElement.style.setProperty('--primary-color', deck.meta.primaryColor || '#0A7CFF');
+  // Apply UI Theme
+  useEffect(() => {
+    const root = window.document.documentElement;
+    const isDark = 
+      appTheme === 'dark' || 
+      (appTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    if (isDark) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [appTheme]);
+
+  // Apply Slide Theme Color
+  useEffect(() => {
+    document.documentElement.style.setProperty('--slide-primary', deck.meta.primaryColor || '#0A7CFF');
+  }, [deck.meta.primaryColor]);
+
+  // Handle Fullscreen Play Mode
+  useEffect(() => {
+    if (playMode && playContainerRef.current) {
+      if (playContainerRef.current.requestFullscreen) {
+        playContainerRef.current.requestFullscreen().catch(err => {
+          console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      }
+    } else if (!playMode && document.fullscreenElement) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }, [playMode]);
+
+  // Listen for fullscreen exit from ESC key via browser
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setPlayMode(false);
+      }
+    };
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+  }, []);
+
+  // Update scale for Play Mode dynamically
+  useEffect(() => {
+    if (!playMode) return;
+    
+    const updateScale = () => {
+      setPlayScale(Math.min(window.innerWidth / 960, window.innerHeight / 540));
+    };
+    
+    updateScale(); // Initial
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, [playMode]);
+
+  // Keyboard navigation for play mode
+  useEffect(() => {
+    if (!playMode) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'Space') {
+        if (currentSlide < deck.slides.length - 1) setCurrentSlide(p => p + 1);
+      } else if (e.key === 'ArrowLeft') {
+        if (currentSlide > 0) setCurrentSlide(p => p - 1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [playMode, currentSlide, deck.slides.length]);
 
   const handleUpdateComponent = (slideId: string, compId: string, fieldPath: string, value: string) => {
     setDeck(prev => {
@@ -53,40 +125,12 @@ function App() {
     });
   };
 
-  const handleColorChange = (color: string) => {
-    setDeck(prev => ({
-      ...prev,
-      meta: { ...prev.meta, primaryColor: color }
-    }));
-  };
-
-  // Keyboard navigation for play mode
-  useEffect(() => {
-    if (!playMode) return;
-    
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight' || e.key === 'Space') {
-        if (currentSlide < deck.slides.length - 1) setCurrentSlide(p => p + 1);
-      } else if (e.key === 'ArrowLeft') {
-        if (currentSlide > 0) setCurrentSlide(p => p - 1);
-      } else if (e.key === 'Escape') {
-        setPlayMode(false);
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [playMode, currentSlide, deck.slides.length]);
-
-  // If in play mode, render full screen
+  // Play mode renderer
   if (playMode) {
     return (
-      <div className="play-mode">
-        <div style={{ transform: 'scale(1.5)', transformOrigin: 'center center' }}>
+      <div className="play-mode-root" ref={playContainerRef}>
+        <div style={{ transform: `scale(${playScale})`, transformOrigin: 'center center' }}>
           <SlideRenderer slide={deck.slides[currentSlide]} isThumbnail={true} />
-        </div>
-        <div style={{ position: 'fixed', bottom: 20, color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>
-          按 ⬅️ ➡️ 切换，按 Esc 退出播放
         </div>
       </div>
     );
@@ -99,74 +143,148 @@ function App() {
         <div className="logo-container">
           <img src="/logo-Prena.jpeg" alt="Prena Logo" style={{ height: 32, borderRadius: 4 }} />
           Prena | 轻呈
-          <span style={{ fontSize: 14, color: 'var(--text-secondary)', marginLeft: 8, fontWeight: 'normal' }}>复杂内容，轻松呈现</span>
+          <span style={{ fontSize: 14, color: 'var(--ui-text-muted)', marginLeft: 8, fontWeight: 'normal' }}>复杂内容，轻松呈现</span>
         </div>
         <div className="nav-actions">
+          
+          {/* 视图切换 */}
+          <div className="theme-toggle" style={{ marginRight: 16 }}>
+            <button className={`theme-toggle-btn ${viewMode === 'normal' ? 'active' : ''}`} onClick={() => setViewMode('normal')} title="普通视图">
+              <Sidebar size={14} />
+            </button>
+            <button className={`theme-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`} onClick={() => setViewMode('grid')} title="宫格视图">
+              <LayoutGrid size={14} />
+            </button>
+          </div>
+
+          {/* App UI Theme Toggle */}
+          <div className="theme-toggle">
+            <button className={`theme-toggle-btn ${appTheme === 'light' ? 'active' : ''}`} onClick={() => setAppTheme('light')} title="浅色模式">
+              <Sun size={14} />
+            </button>
+            <button className={`theme-toggle-btn ${appTheme === 'dark' ? 'active' : ''}`} onClick={() => setAppTheme('dark')} title="深色模式">
+              <Moon size={14} />
+            </button>
+            <button className={`theme-toggle-btn ${appTheme === 'system' ? 'active' : ''}`} onClick={() => setAppTheme('system')} title="跟随系统">
+              <Laptop size={14} />
+            </button>
+          </div>
+
+          <div style={{ width: 1, height: 24, background: 'var(--ui-border)', margin: '0 8px' }}></div>
+
           {/* 色卡选择 */}
           <div className="color-swatch-container">
-            <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>主题色:</span>
             {THEME_COLORS.map(color => (
               <div 
                 key={color} 
                 className={`color-swatch ${deck.meta.primaryColor === color ? 'active' : ''}`}
                 style={{ backgroundColor: color }}
-                onClick={() => handleColorChange(color)}
+                onClick={() => setDeck(prev => ({ ...prev, meta: { ...prev.meta, primaryColor: color } }))}
+                title="幻灯片主题色"
               />
             ))}
           </div>
 
-          <button className="btn" onClick={() => setPlayMode(true)}>
-            <Play size={16} />
-            播放演示
+          <button className="btn" onClick={() => setPlayMode(true)} title="播放演示">
+            <Projector size={18} />
           </button>
-          <button className="btn btn-primary" onClick={() => exportDeckToPPTX(deck)}>
-            <Download size={16} />
-            导出完整 PPTX
+          <button className="btn btn-primary" onClick={() => exportDeckToPPTX(deck)} title="导出完整 PPTX">
+            <Download size={18} />
           </button>
         </div>
       </header>
 
       <div className="app-body">
-        {/* 左侧缩略图导航 */}
-        <aside className="sidebar">
-          {deck.slides.map((slide, idx) => (
-            <div 
-              key={slide.id} 
-              className={`thumbnail-wrapper ${idx === currentSlide ? 'active' : ''}`}
-              onClick={() => setCurrentSlide(idx)}
-              style={{ width: 206, height: 116, overflow: 'hidden' }}
-            >
-              <div className="thumbnail-number">{idx + 1}</div>
-              <div className="thumbnail-scale">
-                <SlideRenderer slide={slide} isThumbnail={true} />
-              </div>
-            </div>
-          ))}
-        </aside>
+        {viewMode === 'normal' ? (
+          <>
+            {/* 左侧缩略图导航 */}
+            <aside className="sidebar">
+              {deck.slides.map((slide, idx) => (
+                <div 
+                  key={slide.id} 
+                  className={`thumbnail-wrapper ${idx === currentSlide ? 'active' : ''}`}
+                  onClick={() => setCurrentSlide(idx)}
+                  style={{ width: 206, height: 116 }}
+                >
+                  <div className="thumbnail-number">{idx + 1}</div>
+                  <div className="thumbnail-scale">
+                    <SlideRenderer slide={slide} isThumbnail={true} />
+                  </div>
+                </div>
+              ))}
+            </aside>
 
-        {/* 主编辑区 */}
-        <main className="main-editor">
-          <div className="slide-view-container">
-            <SlideRenderer 
-              slide={deck.slides[currentSlide]} 
-              onUpdateComponent={(compId, field, val) => handleUpdateComponent(deck.slides[currentSlide].id, compId, field, val)} 
-            />
+            {/* 主编辑区 */}
+            <main className="main-editor">
+              <div className="slide-view-container">
+                <div style={{ transform: 'scale(1)', transition: 'transform 0.2s' }}>
+                  <SlideRenderer 
+                    slide={deck.slides[currentSlide]} 
+                    onUpdateComponent={(compId, field, val) => handleUpdateComponent(deck.slides[currentSlide].id, compId, field, val)} 
+                  />
+                </div>
+              </div>
+              
+              {/* 演讲稿 */}
+              <div className="notes-container" style={{ height: notesHeight > 0 ? notesHeight : 0 }}>
+                <button 
+                  className="notes-toggle" 
+                  onClick={() => setNotesHeight(h => h === 0 ? 80 : 0)}
+                  title="演讲稿"
+                >
+                  {notesHeight === 0 ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+                
+                {notesHeight > 0 && (
+                  <>
+                    <div className="notes-resizer" onMouseDown={(e) => {
+                      const startY = e.clientY;
+                      const startH = notesHeight;
+                      const onMove = (ev: MouseEvent) => {
+                        const newH = startH + (startY - ev.clientY);
+                        setNotesHeight(Math.max(40, Math.min(newH, 400)));
+                      };
+                      const onUp = () => {
+                        document.removeEventListener('mousemove', onMove);
+                        document.removeEventListener('mouseup', onUp);
+                      };
+                      document.addEventListener('mousemove', onMove);
+                      document.addEventListener('mouseup', onUp);
+                    }} />
+                    <textarea 
+                      className="notes-editor"
+                      value={deck.slides[currentSlide].notes || ''}
+                      onChange={(e) => handleUpdateNotes(e.target.value)}
+                      placeholder="在此输入本页的演讲备注..."
+                    />
+                  </>
+                )}
+              </div>
+            </main>
+          </>
+        ) : (
+          /* 宫格视图 */
+          <div className="grid-view-container">
+            {deck.slides.map((slide, idx) => (
+              <div 
+                key={slide.id} 
+                className="grid-thumbnail-wrapper"
+                onClick={() => {
+                  setCurrentSlide(idx);
+                  setViewMode('normal');
+                }}
+              >
+                <div className="thumbnail-number">{idx + 1}</div>
+                <div className="grid-thumbnail-scale">
+                  <SlideRenderer slide={slide} isThumbnail={true} />
+                </div>
+              </div>
+            ))}
           </div>
-          
-          {/* 演讲稿 */}
-          <div className="notes-container">
-            <h3>演讲稿 (Speaker Notes)</h3>
-            <textarea 
-              className="notes-editor"
-              value={deck.slides[currentSlide].notes || ''}
-              onChange={(e) => handleUpdateNotes(e.target.value)}
-              placeholder="在此输入本页的演讲备注，它会被导出到 PPTX 的备注区域..."
-            />
-          </div>
-        </main>
+        )}
       </div>
 
-      {/* 隐藏区域：为了导出完整文件，在此处将所有 Slide 并排渲染（对用户不可见） */}
+      {/* 隐藏导出区 */}
       <div className="export-hidden-area">
         {deck.slides.map(slide => (
           <SlideRenderer key={`export-${slide.id}`} slide={slide} isThumbnail={true} />
