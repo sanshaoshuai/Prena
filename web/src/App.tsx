@@ -97,8 +97,9 @@ function App() {
       {/* 顶部导航栏 */}
       <header className="navbar">
         <div className="logo-container">
-          <Layout size={24} color="var(--primary-color)" />
-          SlideFlow
+          <img src="/logo-Prena.jpeg" alt="Prena Logo" style={{ height: 32, borderRadius: 4 }} />
+          Prena | 轻呈
+          <span style={{ fontSize: 14, color: 'var(--text-secondary)', marginLeft: 8, fontWeight: 'normal' }}>复杂内容，轻松呈现</span>
         </div>
         <div className="nav-actions">
           {/* 色卡选择 */}
