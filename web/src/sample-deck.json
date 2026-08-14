@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "title": "SlideFlow 演示",
+    "theme": "light",
+    "primaryColor": "#0A7CFF"
+  },
+  "slides": [
+    {
+      "id": "slide-1",
+      "layout": "center",
+      "components": [
+        {
+          "id": "c-1",
+          "type": "Heading",
+          "level": 1,
+          "text": "SlideFlow",
+          "align": "center"
+        },
+        {
+          "id": "c-2",
+          "type": "Paragraph",
+          "text": "下一代智能演示文稿框架：告别套模版，拥抱动态排版",
+          "align": "center"
+        }
+      ]
+    },
+    {
+      "id": "slide-2",
+      "layout": "standard",
+      "components": [
+        {
+          "id": "c-3",
+          "type": "Heading",
+          "level": 2,
+          "text": "核心架构优势"
+        },
+        {
+          "id": "c-4",
+          "type": "CardGrid",
+          "columns": 3,
+          "cards": [
+            {
+              "title": "灵活组件",
+              "content": "使用原子化组件而不是死板模版，内容不再被裁剪。",
+              "icon": "Layers"
+            },
+            {
+              "title": "完美渲染",
+              "content": "利用 Web 技术实现圆角、阴影、自适应等高端效果。",
+              "icon": "Monitor"
+            },
+            {
+              "title": "真实导出",
+              "content": "前端解析 DOM，逆向生成 100% 还原的本地 PPTX。",
+              "icon": "Download"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
